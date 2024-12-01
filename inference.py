@@ -1,5 +1,7 @@
 import os
 import argparse
+import numpy as np
+import json  # Добавляем модуль для работы с JSON
 from utils import (  # Импортируем обработчики из handlers.py
     get_images_from_folder,
     predict_in_folders,
@@ -30,8 +32,9 @@ def main(args):
     print(f"Словарь кадров: {frame_dict}")
 
     # Обработка каждого фрейма по очереди для всех видео
-    for frame_id in range(4):  # Можно изменить, чтобы обрабатывать все фреймы
+    for frame_id in range(num_videos):  # Можно изменить, чтобы обрабатывать все фреймы
         print(f"Обработка фрейма {frame_id + 1}")
+        detection_data_for_json = []
 
         # Получаем пути изображений для текущего кадра
         image_paths = frame_dict[frame_id]
@@ -61,15 +64,38 @@ def main(args):
 
         # Этап 6: Визуализация результатов
         visualize_steps(cropped_data, segmented_data, stripe_images, frame_id, video_id, clusters)
-
-        # Дополнительно: сохраняем результаты
-        output_path = os.path.normpath(os.path.join(save_dir, f"clusters_frame_{frame_id + 1}.json"))
-
-        print(f"Результаты для фрейма {frame_id + 1} сохранены в {output_path}")
-        # Здесь можно добавить код для сохранения `clusters` в файл
         
-    while True:
-        pass
+        # Дополнительно: сохраняем результаты в JSON-файл
+        for idx, detection in enumerate(detection_data):
+            image_path = detection["image_path"]
+            bbox = detection["bbox"]  # Параметры bounding box
+            object_id = detection["id"]
+
+            # Структура для сохранения
+            frame_data = {
+                "frame_id": frame_id + 1,
+                "object_id": object_id,
+                "bb_left": bbox[0],
+                "bb_top": bbox[1],
+                "bb_width": bbox[2],
+                "bb_height": bbox[3],
+                "ids": clusters[idx]  # Идентификаторы кластера для объекта
+            }
+
+            detection_data_for_json.append(frame_data)
+            
+            
+        for frame_data in detection_data_for_json:
+            # Преобразуем все элементы 'ids' в обычные int
+            frame_data['ids'] = int(frame_data['ids']) if isinstance(frame_data['ids'], np.int32) else frame_data['ids']
+
+        # Теперь сохраняем данные в JSON
+        output_path = os.path.normpath(os.path.join(save_dir, f"clusters_frame_{frame_id + 1}.json"))
+        with open(output_path, 'w', encoding='utf-8') as json_file:
+            json.dump(detection_data_for_json, json_file, ensure_ascii=False, indent=4)  # Сохраняем с отступами для читаемости
+
+        
+    print("Обработка завершена.")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Скрипт для обработки видео и извлечения предсказаний")
