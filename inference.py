@@ -1,6 +1,6 @@
 import os
 import argparse
-from handler import (  # Импортируем обработчики из handlers.py
+from utils import (  # Импортируем обработчики из handlers.py
     get_images_from_folder,
     predict_in_folders,
     crop_objects,

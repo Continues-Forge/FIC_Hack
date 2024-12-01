@@ -6,5 +6,5 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./data:/app/data 
-    command: ["python", "main.py", "--videos_dir", "/app/data/videos", "--mount", "/app/data/models", "--save_dir", "/app/data/predictions"]
+      - ./data:/app/data
+    command: ["python", "inference.py", "--videos_dir", "/app/data/videos", "--mount", "/app/data/models", "--save_dir", "/app/data/predictions"]
