@@ -1,11 +1,10 @@
 version: '3.8'
 
 services:
-  app:
+  main_service:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./app:/usr/src/app/app
-    ports:
-      - "8000:8000"
+      - ./data:/app/data 
+    command: ["python", "main.py", "--videos_dir", "/app/data/videos", "--mount", "/app/data/models", "--save_dir", "/app/data/predictions"]

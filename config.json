@@ -1,0 +1,6 @@
+{
+    "videos_dir": "/data/",
+    "mount": "/",
+    "save_dir": "/data/predictions"
+  }
+  

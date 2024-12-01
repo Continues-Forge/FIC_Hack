@@ -1,12 +1,20 @@
+# Базовый образ
+FROM python:3.10-slim
 
-FROM python:3.11
+# Установим рабочую директорию
+WORKDIR /app
 
-WORKDIR /usr/src/app
+# Скопируем файлы в контейнер
+COPY . /app
 
-COPY . /usr/src/app
+# Установка системных зависимостей для OpenGL и других графических библиотек
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Настраиваем volume (опционально для справки)
-VOLUME ["/usr/src/app/app"]
+# Установим зависимости Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Команда по умолчанию
-CMD ["python", "-m", "http.server"]
+# Запуск Python скрипта
+CMD ["python", "main.py"]
